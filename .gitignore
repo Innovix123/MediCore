@@ -1,0 +1,36 @@
+venv/
+__pycache__/
+*.pyc
+.env
+instance/
+*.db
+uploads/*
+!uploads/.gitkeep
+backups/*
+!backups/.gitkeep
+.pytest_cache/
+.vscode/
+# Python cache files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+
+# Secrets
+.env
+.env.*
+
+# Keep the example configuration
+!.env.example
+
+# Local databases and uploaded files
+instance/
+*.db
+uploads/*
+!uploads/.gitkeep
+
+# Editor settings
+.vscode/

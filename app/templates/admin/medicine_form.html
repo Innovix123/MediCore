@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if med and med.id else 'Add' }} medicine{% endblock %}
+{% block content %}
+<h1>{{ 'Edit' if med and med.id else 'Add' }} medicine</h1>
+<form method="post" class="card stack">{{ csrf_field() }}
+  <div class="grid2">
+  <label>Brand name <input name="brand_name" value="{{ med.brand_name if med else '' }}" required></label>
+  <label>Generic name <input name="generic_name" value="{{ med.generic_name if med else '' }}" required></label>
+  <label>Composition <input name="composition" value="{{ med.composition if med else '' }}" placeholder="e.g. Paracetamol 650mg"></label>
+  <label>Strength <input name="strength" value="{{ med.strength if med else '' }}" placeholder="650 mg"></label>
+  <label>Form <input name="form" value="{{ med.form if med else 'Tablet' }}"></label>
+  <label>Category <input name="category" value="{{ med.category if med else 'General' }}"></label>
+  <label>Schedule
+    <select name="schedule">{% for s in ['OTC','H','H1','X'] %}<option value="{{ s }}" {{ 'selected' if med and med.schedule==s }}>{{ s }}</option>{% endfor %}</select></label>
+  <label class="check"><input type="checkbox" name="requires_prescription" {{ 'checked' if med and med.requires_prescription }}> Requires prescription even if OTC-listed</label>
+  <label>MRP (Rs) <input name="mrp" type="number" step="0.01" min="0" value="{{ med.mrp if med else '' }}" required></label>
+  <label>GST % <input name="gst_percent" type="number" step="0.1" value="{{ med.gst_percent if med else 12 }}"></label>
+  <label>Reorder level <input name="reorder_level" type="number" min="0" value="{{ med.reorder_level if med else 20 }}"></label>
+  <label>Criticality (V/E/D) <input name="criticality" maxlength="1" value="{{ med.criticality if med else 'D' }}"></label>
+  <label>Barcode <input name="barcode" value="{{ med.barcode if med else '' }}"></label>
+  <label>Preferred supplier <select name="preferred_supplier_id"><option value="">None</option>
+    {% for s in suppliers %}<option value="{{ s.id }}" {{ 'selected' if med and med.preferred_supplier_id==s.id }}>{{ s.name }}</option>{% endfor %}</select></label>
+  </div>
+  <label>Uses <input name="uses" value="{{ med.uses if med else '' }}"></label>
+  <label>Side effects <input name="side_effects" value="{{ med.side_effects if med else '' }}"></label>
+  <button class="btn">Save medicine</button>
+</form>
+{% endblock %}

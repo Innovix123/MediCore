@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav_find') }}{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>{{ t('hero_title') }}</h1>
+  <p>{{ t('hero_sub') }}</p>
+  <div class="search-box" role="search">
+    <input id="q" type="search" list="suggestions" placeholder="{{ t('search_placeholder') }}" autocomplete="off" aria-label="{{ t('search_btn') }}">
+    <datalist id="suggestions"></datalist>
+    <button class="btn" id="go" type="button">{{ t('search_btn') }}</button>
+  </div>
+</section>
+<div id="results" aria-live="polite"></div>
+<p class="notice">{{ t('notice') }}</p>
+{% endblock %}
+{% block scripts %}
+<script>window.I18N = {rx: {{ t('rx_required')|tojson }}, alts: {{ t('alternatives')|tojson }}};</script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+{% endblock %}

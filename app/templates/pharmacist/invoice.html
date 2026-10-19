@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ inv.invoice_no }}{% endblock %}
+{% block content %}
+<h1>Invoice {{ inv.invoice_no }}</h1>
+<p>{{ inv.created_at.strftime('%d %b %Y, %I:%M %p') }} &middot; {{ inv.customer.name if inv.customer else 'Walk-in customer' }} &middot; {{ inv.payment_mode|upper }}</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Qty</th><th>MRP</th><th>Discount</th><th>Amount</th></tr></thead>
+  <tbody>{% for it in inv.items %}<tr><td>{{ it.medicine.display_name }}</td><td>{{ it.batch.batch_no }}</td>
+    <td>{{ it.batch.expiry_date.strftime('%m/%y') }}</td><td>{{ it.quantity }}</td><td>{{ it.unit_price|money }}</td>
+    <td>{{ it.discount_amount|money }}</td><td>{{ it.line_total|money }}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><th colspan="6">Total (GST included: {{ inv.gst_amount|money }})</th><th>{{ inv.total|money }}</th></tr></tfoot></table></div>
+<p><a class="btn" href="{{ url_for('pharmacist.invoice_pdf_view', invoice_id=inv.id) }}">Download PDF</a>
+   <a class="btn secondary" href="{{ url_for('pharmacist.pos') }}">New sale</a></p>
+<section class="card"><h2>Counseling notes</h2>
+  {% for n in notes %}<p><strong>{{ n.pharmacist.full_name or n.pharmacist.username }}</strong> ({{ n.created_at.strftime('%d %b %H:%M') }}): {{ n.note }}</p>{% else %}<p class="empty">No notes yet.</p>{% endfor %}
+  {% if current_user.role_name in ('admin','pharmacist') %}
+  <form method="post" action="{{ url_for('pharmacist.add_note', invoice_id=inv.id) }}" class="inline-form">{{ csrf_field() }}
+    <input name="note" placeholder="Advice given (dose, timing, warnings)" required><button class="btn secondary">Save note</button></form>{% endif %}
+</section>
+{% endblock %}

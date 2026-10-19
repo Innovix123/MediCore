@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+{% block content %}
+<h1>Order #{{ order.id }}</h1>
+{% if order.status == 'cancelled' %}<p class="flash error">This order was cancelled.{% if order.prescription_upload and order.prescription_upload.reject_reason %} Reason: {{ order.prescription_upload.reject_reason }}{% endif %}</p>
+{% elif order.status == 'awaiting_prescription' %}<p class="flash">Waiting for a pharmacist to verify your prescription.</p>
+{% else %}
+{% set cur = steps.index(order.status) if order.status in steps else -1 %}
+<ol class="timeline">
+  {% for s in steps %}<li class="{{ 'done' if loop.index0 <= cur else '' }}">{{ s.replace('_',' ') }}</li>{% endfor %}
+</ol>{% endif %}
+{% if order.delivery and order.delivery.driver_name %}<p>Driver: {{ order.delivery.driver_name }} {{ order.delivery.driver_phone }}</p>{% endif %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Medicine</th><th>Qty</th><th>Price</th></tr></thead>
+  <tbody>{% for i in order.items %}<tr><td>{{ i.medicine.display_name }}</td><td>{{ i.quantity }}</td><td>{{ (i.unit_price*i.quantity)|money }}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><th colspan="2">Total</th><th>{{ order.total|money }}</th></tr></tfoot></table></div>
+{% if order.status == 'delivered' %}
+<form method="post" action="{{ url_for('customer.feedback', order_id=order.id) }}" class="card stack">{{ csrf_field() }}
+  <h2>How was it?</h2>
+  <label>Rating <select name="rating">{% for n in [5,4,3,2,1] %}<option>{{ n }}</option>{% endfor %}</select></label>
+  <label>Comment <input name="comment" maxlength="400"></label>
+  <button class="btn">Send feedback</button></form>{% endif %}
+{% endblock %}

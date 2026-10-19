@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Create your account</h1>
+  <form method="post" class="stack">{{ csrf_field() }}
+    <label>Full name <input name="name" value="{{ form.get('name','') }}" required></label>
+    <label>Phone <input name="phone" value="{{ form.get('phone','') }}" inputmode="tel"></label>
+    <label>Email (optional) <input name="email" type="email" value="{{ form.get('email','') }}"></label>
+    <label>Address (for delivery) <input name="address" value="{{ form.get('address','') }}"></label>
+    <label>Username <input name="username" value="{{ form.get('username','') }}" required autocomplete="username"></label>
+    <label>Password (8+ characters) <input name="password" type="password" required autocomplete="new-password"></label>
+    <label class="check"><input type="checkbox" name="consent" value="1">
+      I agree that MediCore stores my prescriptions, allergies and orders to serve me safely.</label>
+    <button class="btn">Create account</button>
+  </form>
+</section>
+{% endblock %}

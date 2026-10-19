@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Returns{% endblock %}
+{% block content %}
+<h1>Customer returns</h1>
+<form method="get" class="inline-form"><input name="invoice_no" value="{{ q }}" placeholder="Invoice number, e.g. INV-260928-00012" required><button class="btn">Find invoice</button></form>
+{% if inv %}
+<h2>{{ inv.invoice_no }}</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Medicine</th><th>Sold</th><th>Returned</th><th>Return now</th></tr></thead>
+  <tbody>{% for it in inv.items %}<tr><td>{{ it.medicine.display_name }}</td><td>{{ it.quantity }}</td><td>{{ it.returned_qty }}</td>
+    <td>{% if it.returnable > 0 %}
+      <form method="post" class="inline-form">{{ csrf_field() }}<input type="hidden" name="invoice_item_id" value="{{ it.id }}"><input type="hidden" name="invoice_no" value="{{ inv.invoice_no }}">
+        <input type="number" name="quantity" min="1" max="{{ it.returnable }}" value="1" aria-label="Quantity">
+        <input name="reason" placeholder="Reason" required><button class="btn secondary">Refund</button></form>
+      {% else %}-{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+{% endblock %}

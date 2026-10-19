@@ -1,0 +1,14 @@
+{% macro table(headers, rows, empty="Nothing to show.") %}
+  {% if rows %}
+  <div class="table-wrap"><table>
+    <thead><tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for r in rows %}<tr>{% for c in r %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<p class="empty">{{ empty }}</p>{% endif %}
+{% endmacro %}
+
+{% macro badge(status) %}
+  {% if status == 'in_stock' %}<span class="badge in">{{ t('in_stock') }}</span>
+  {% elif status == 'low' %}<span class="badge low">{{ t('low') }}</span>
+  {% else %}<span class="badge out">{{ t('out') }}</span>{% endif %}
+{% endmacro %}

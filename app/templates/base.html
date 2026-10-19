@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MediCore{% endblock %} | MediCore Pharmacy</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <meta name="theme-color" content="#115569">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body data-csrf="{{ csrf_token() }}">
+{% set role = current_user.role_name if current_user.is_authenticated else '' %}
+{% set ep = request.endpoint or '' %}
+<header class="site-header">
+
+  <div class="util-bar">
+    <div class="util-inner">
+      {% if role in ('admin','pharmacist','cashier') and nav_branches %}
+        <form method="post" action="{{ url_for('pharmacist.switch_branch') }}" class="branch-switch">
+          {{ csrf_field() }}
+          <label class="visually-hidden" for="branch-select">Working branch</label>
+          <span class="branch-icon" aria-hidden="true">&#128205;</span>
+          <select id="branch-select" name="branch_id" onchange="this.form.submit()">
+            {% for b in nav_branches %}
+              <option value="{{ b.id }}" {{ 'selected' if b.id == nav_current_branch_id }}>{{ b.name }}</option>
+            {% endfor %}
+          </select>
+          <noscript><button class="btn secondary small-btn">Switch</button></noscript>
+        </form>
+      {% else %}<span></span>{% endif %}
+
+      <div class="util-right">
+        {% if current_user.is_authenticated %}
+          <span class="whoami">{{ current_user.full_name or current_user.username }}{% if role %} &middot; {{ role }}{% endif %}</span>
+          <form method="post" action="{{ url_for('auth.logout') }}" class="inline">{{ csrf_field() }}
+            <button class="linkbtn">{{ t('nav_logout') }}</button></form>
+        {% else %}
+          <a href="{{ url_for('auth.register') }}">Create account</a>
+          <a href="{{ url_for('auth.login') }}">{{ t('nav_login') }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="header-inner">
+    <a class="brand" href="{{ url_for('customer.home') }}" aria-label="MediCore home">
+      <img src="{{ url_for('static', filename='img/logo_600.png') }}" alt="MediCore - Pharmacy Database Management System">
+    </a>
+    {% if current_user.is_authenticated %}
+    <nav class="main-nav" aria-label="Main">
+      {% if role in ('admin','pharmacist','cashier') %}
+        <a href="{{ url_for('pharmacist.pos') }}" {% if ep=='pharmacist.pos' %}class="active"{% endif %}>Billing</a>
+        {% if role != 'cashier' %}<a href="{{ url_for('pharmacist.verification') }}" {% if ep=='pharmacist.verification' %}class="active"{% endif %}>Prescriptions</a>{% endif %}
+        <a href="{{ url_for('pharmacist.orders') }}" {% if ep=='pharmacist.orders' %}class="active"{% endif %}>Orders</a>
+        <a href="{{ url_for('pharmacist.returns') }}" {% if ep=='pharmacist.returns' %}class="active"{% endif %}>Returns</a>
+        <a href="{{ url_for('pharmacist.daily_summary') }}" {% if ep=='pharmacist.daily_summary' %}class="active"{% endif %}>Day close</a>
+        {% if role == 'admin' %}
+          <a href="{{ url_for('admin.dashboard') }}" {% if ep=='admin.dashboard' %}class="active"{% endif %}>Dashboard</a>
+          <a href="{{ url_for('admin.inventory') }}" {% if ep in ('admin.inventory','admin.medicine_detail','admin.medicine_form') %}class="active"{% endif %}>Inventory</a>
+          <a href="{{ url_for('admin.report_view') }}" {% if ep=='admin.report_view' %}class="active"{% endif %}>Reports</a>
+          <a href="{{ url_for('admin.purchase') }}" {% if ep in ('admin.purchase','admin.purchase_detail') %}class="active"{% endif %}>Purchasing</a>
+          <details class="more"><summary>More <span class="chev">&#9662;</span></summary>
+            <div class="more-menu">
+              <a href="{{ url_for('admin.branches') }}">Branches</a>
+              <a href="{{ url_for('admin.suppliers') }}">Suppliers</a>
+              <a href="{{ url_for('admin.expenses') }}">Expenses</a>
+              <a href="{{ url_for('admin.offers') }}">Offers</a>
+              <a href="{{ url_for('admin.credit') }}">Credit ledger</a>
+              <a href="{{ url_for('admin.register') }}">H1/X register</a>
+              <a href="{{ url_for('admin.audit') }}">Audit trail</a>
+              <a href="{{ url_for('admin.staff') }}">Staff</a>
+            </div>
+          </details>
+        {% endif %}
+      {% else %}
+        <a href="{{ url_for('customer.home') }}" {% if ep=='customer.home' %}class="active"{% endif %}>{{ t('nav_find') }}</a>
+        <a href="{{ url_for('customer.prescriptions') }}" {% if ep=='customer.prescriptions' %}class="active"{% endif %}>{{ t('nav_upload') }}</a>
+        <a href="{{ url_for('customer.cart') }}" {% if ep=='customer.cart' %}class="active"{% endif %}>{{ t('nav_cart') }}{% if session.get('cart') %} <span class="cart-count">{{ session['cart']|length }}</span>{% endif %}</a>
+        <a href="{{ url_for('customer.orders') }}" {% if ep=='customer.orders' %}class="active"{% endif %}>{{ t('nav_orders') }}</a>
+        <a href="{{ url_for('customer.profile') }}" {% if ep=='customer.profile' %}class="active"{% endif %}>{{ t('nav_profile') }}</a>
+      {% endif %}
+    </nav>
+    {% endif %}
+  </div>
+</header>
+
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in messages %}<p class="flash {{ cat }}" role="status">{{ m }}</p>{% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <img src="{{ url_for('static', filename='img/logo_icon.png') }}" alt="">
+  &copy; {{ now().year }} MediCore Pharmacy Database Management System
+</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

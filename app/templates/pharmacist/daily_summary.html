@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Day close{% endblock %}
+{% block content %}
+<h1>Sales summary for {{ s.day.strftime('%d %b %Y') }}</h1>
+<div class="kpis">
+  <div class="kpi"><span>Invoices</span><strong>{{ s.count }}</strong></div>
+  <div class="kpi"><span>Total sales</span><strong>{{ s.total|money }}</strong></div>
+  <div class="kpi"><span>GST included</span><strong>{{ s.gst|money }}</strong></div>
+</div>
+<h2>By payment mode</h2>
+<ul class="plain">{% for mode, amt in s.by_mode.items() %}<li>{{ mode|upper }}: {{ amt|money }}</li>{% else %}<li class="empty">No sales yet.</li>{% endfor %}</ul>
+<form method="post" class="card stack">{{ csrf_field() }}
+  <h2>Cash drawer check</h2>
+  <p>Expected cash from sales: <strong>{{ expected|money }}</strong></p>
+  <label>Cash counted <input name="counted_cash" type="number" step="0.01" min="0" required value="{{ counted if counted is not none }}"></label>
+  <button class="btn">Compare</button>
+  {% if diff is not none %}<p class="flash {{ 'ok' if diff == 0 else 'error' }}">{% if diff == 0 %}Drawer matches.{% elif diff > 0 %}Over by {{ diff|money }}.{% else %}Short by {{ (-diff)|money }}.{% endif %}</p>{% endif %}
+</form>
+<form method="post" action="{{ url_for('pharmacist.shift') }}">{{ csrf_field() }}<button class="btn secondary">Clock in / out</button></form>
+{% endblock %}

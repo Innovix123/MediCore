@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import table %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+{% if intro %}<p class="small">{{ intro }}</p>{% endif %}
+{{ table(headers, rows) }}
+{% if fields and action %}
+<form method="post" action="{{ action }}" class="card stack">{{ csrf_field() }}
+  {% for name, label, type in fields %}<label>{{ label }} <input name="{{ name }}" type="{{ type }}"{{ ' required' if type != 'text' or loop.first }}></label>{% endfor %}
+  <button class="btn">{{ button }}</button>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Billing{% endblock %}
+{% block content %}
+<h1>Billing counter</h1>
+<p class="small">Billing from <strong>{{ current_branch.name if current_branch else 'your branch' }}</strong>.
+   Stock shown here is only for this branch — switch branches from the bar at the top of the page.</p>
+<div class="pos">
+  <section class="card">
+    <label>Scan barcode or search medicine <input id="lookup" autocomplete="off" autofocus placeholder="Barcode, brand or generic name"></label>
+    <div id="lookup-results" class="picklist"></div>
+    <div class="table-wrap"><table id="cart-table">
+      <thead><tr><th>Medicine</th><th>Price</th><th>Qty</th><th>Line</th><th></th></tr></thead>
+      <tbody id="cart-body"></tbody>
+    </table></div>
+    <p id="cart-empty" class="empty">No items yet.</p>
+  </section>
+  <section class="card stack">
+    <label>Customer <select id="customer"><option value="">Walk-in customer</option>
+      {% for c in customers %}<option value="{{ c.id }}">{{ c.name }} {{ c.phone }}</option>{% endfor %}</select></label>
+    <label>Payment <select id="payment"><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option><option value="credit">Credit (customer account)</option></select></label>
+    <label>Extra discount % (max {{ max_discount }} for cashiers) <input id="discount" type="number" min="0" max="{{ max_discount }}" step="0.5" value="0"></label>
+    <div id="rx-box" class="rx-box" hidden>
+      <strong>Prescription medicines in this bill</strong>
+      <label class="check"><input type="checkbox" id="rx-ok"> I have checked a valid prescription</label>
+      <input id="doctor" placeholder="Prescribing doctor's name">
+      <input id="doctor-reg" placeholder="Doctor's registration no. (required for H1/X)">
+    </div>
+    <div class="totals">Total <strong id="total">Rs 0.00</strong></div>
+    <p id="pos-msg" class="flash" hidden></p>
+    <button class="btn" id="checkout">Complete sale</button>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pos.js') }}"></script>{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ med.brand_name }}{% endblock %}
+{% block content %}
+<h1>{{ med.display_name }} <a href="{{ url_for('admin.medicine_form', medicine_id=med.id) }}" class="small">edit</a></h1>
+<p>{{ med.generic_name }} &middot; {{ med.composition }} &middot; Available at your current branch: <strong>{{ qty }}</strong>
+   &middot; Reorder at {{ med.reorder_level }} &middot; Schedule {{ med.schedule }}</p>
+
+<section class="card"><h2>Batches (all branches)</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Branch</th><th>Batch</th><th>Expiry</th><th>Qty</th><th>Cost</th><th>Status</th><th>Remove stock</th></tr></thead>
+  <tbody>{% for b in batches %}<tr class="{{ 'current-row' if b.branch_id == current_branch_id }}">
+    <td>{{ b.branch.name if b.branch else '-' }}</td>
+    <td>{{ b.batch_no }}</td><td>{{ b.expiry_date.strftime('%d %b %Y') }}</td><td>{{ b.quantity }}</td><td>{{ b.purchase_price|money }}</td>
+    <td>{% if b.expiry_date <= today %}<span class="badge out">Expired</span>{% elif b.days_left <= 90 %}<span class="badge low">{{ b.days_left }}d left</span>{% else %}<span class="badge in">OK</span>{% endif %}</td>
+    <td>{% if b.quantity > 0 %}<form method="post" action="{{ url_for('admin.remove_stock', batch_id=b.id) }}" class="inline-form">{{ csrf_field() }}
+      <input type="number" name="quantity" min="1" max="{{ b.quantity }}" value="1" aria-label="Qty">
+      <select name="kind"><option value="writeoff">Write off</option><option value="supplier">Return to supplier</option></select>
+      <select name="reason"><option value="expired">Expired</option><option value="damaged">Damaged</option><option value="other">Other</option></select>
+      <button class="btn secondary">Remove</button></form>{% endif %}</td>
+  </tr>{% else %}<tr><td colspan="7" class="empty">No batches yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="small">New batches below are added to your current branch. Switch branches at the top of the page to add stock elsewhere.</p>
+<form method="post" action="{{ url_for('admin.add_batch', medicine_id=med.id) }}" class="inline-form">{{ csrf_field() }}
+  <input name="batch_no" placeholder="Batch no." required>
+  <input name="expiry_date" type="date" required>
+  <input name="quantity" type="number" min="1" placeholder="Qty" required>
+  <input name="purchase_price" type="number" step="0.01" placeholder="Cost price">
+  <button class="btn">Add batch</button></form>
+</section>
+{% endblock %}

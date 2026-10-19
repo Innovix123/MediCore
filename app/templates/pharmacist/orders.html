@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Online orders{% endblock %}
+{% block content %}
+<h1>Online orders</h1>
+{% for o in orders %}
+<section class="card">
+  <p><strong>Order #{{ o.id }}</strong> &middot; {{ o.customer.name }} &middot; {{ o.fulfilment }} &middot; {{ o.total|money }}
+     &middot; <span class="badge low">{{ o.status.replace('_',' ') }}</span></p>
+  <p class="small">{% for i in o.items %}{{ i.quantity }} x {{ i.medicine.display_name }}{{ ', ' if not loop.last }}{% endfor %}
+     {% if o.fulfilment == 'delivery' %}<br>Deliver to: {{ o.address }}{% endif %}</p>
+  {% if o.status == 'awaiting_prescription' %}<p class="small">Waiting for prescription approval.
+      <a href="{{ url_for('pharmacist.verification') }}">Review prescriptions</a></p>
+  {% elif next_status(o) and current_user.role_name in ('admin','pharmacist') %}
+  <form method="post" action="{{ url_for('pharmacist.advance_order', order_id=o.id) }}" class="inline-form">{{ csrf_field() }}
+    {% if next_status(o) == 'packed' %}<label class="check"><input type="checkbox" name="acknowledge"> Acknowledge safety warnings</label>{% endif %}
+    {% if next_status(o) == 'out_for_delivery' %}<input name="driver_name" placeholder="Driver name"><input name="driver_phone" placeholder="Driver phone">{% endif %}
+    <button class="btn">{{ 'Bill and pack' if next_status(o) == 'packed' else 'Mark ' + next_status(o).replace('_',' ') }}</button></form>
+  {% endif %}
+  {% if o.status in ('placed','awaiting_prescription') and current_user.role_name in ('admin','pharmacist') %}
+  <form method="post" action="{{ url_for('pharmacist.cancel_order', order_id=o.id) }}" class="inline">{{ csrf_field() }}<button class="linkbtn">Cancel order</button></form>{% endif %}
+</section>
+{% else %}<p class="empty">No open orders.</p>{% endfor %}
+{% endblock %}

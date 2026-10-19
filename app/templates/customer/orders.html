@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}My orders{% endblock %}
+{% block content %}
+<h1>My orders</h1>
+{% if orders %}<div class="table-wrap"><table>
+  <thead><tr><th>Order</th><th>Placed</th><th>Type</th><th>Total</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for o in orders %}<tr>
+    <td><a href="{{ url_for('customer.order_detail', order_id=o.id) }}">#{{ o.id }}</a></td>
+    <td>{{ o.created_at.strftime('%d %b %Y') }}</td><td>{{ o.fulfilment }}</td><td>{{ o.total|money }}</td>
+    <td>{{ o.status.replace('_',' ') }}</td>
+    <td><form method="post" action="{{ url_for('customer.reorder', order_id=o.id) }}">{{ csrf_field() }}<button class="linkbtn">Re-order</button></form></td>
+  </tr>{% endfor %}</tbody></table></div>
+{% else %}<p class="empty">No orders yet.</p>{% endif %}
+{% endblock %}

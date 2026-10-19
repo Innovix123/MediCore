@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Branches{% endblock %}
+{% block content %}
+<h1>Branches</h1>
+<p class="small">Each branch has its own stock. Use the branch switcher at the top of the page to choose
+   which branch you're billing from, adding stock to, or checking reports for.</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Branch</th><th>Address</th><th>Phone</th><th>Location set?</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for b in rows %}<tr class="{{ 'current-row' if b.id == current_branch_id }}">
+    <td>{{ b.name }}{% if b.id == current_branch_id %} <span class="badge in">current</span>{% endif %}</td>
+    <td>{{ b.address or '-' }}</td><td>{{ b.phone or '-' }}</td>
+    <td>{{ 'Yes' if b.has_location else 'No' }}</td>
+    <td><span class="badge {{ 'in' if b.active else 'out' }}">{{ 'active' if b.active else 'inactive' }}</span></td>
+    <td><form method="post" action="{{ url_for('admin.branch_toggle', branch_id=b.id) }}" class="inline">{{ csrf_field() }}
+      <button class="linkbtn">{{ 'deactivate' if b.active else 'activate' }}</button></form></td>
+  </tr>{% else %}<tr><td colspan="6" class="empty">No branches yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+
+<form method="post" class="card stack">{{ csrf_field() }}
+  <h2>Add a branch</h2>
+  <div class="grid2">
+    <label>Branch name <input name="name" required placeholder="e.g. Kottayam branch"></label>
+    <label>Phone <input name="phone"></label>
+  </div>
+  <label>Address <input name="address"></label>
+  <div class="grid2">
+    <label>Latitude <input name="latitude" type="number" step="0.0001" placeholder="optional, for maps later"></label>
+    <label>Longitude <input name="longitude" type="number" step="0.0001" placeholder="optional, for maps later"></label>
+  </div>
+  <button class="btn">Add branch</button>
+</form>
+{% endblock %}

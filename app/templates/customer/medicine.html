@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import badge %}
+{% block title %}{{ med.brand_name }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>{{ med.display_name }} {{ badge(status) }}
+    {% if med.needs_rx %}<span class="badge rx">{{ t('rx_required') }}</span>{% endif %}</h1>
+  <p class="meta">{{ med.generic_name }} &middot; {{ med.form }} &middot; MRP {{ med.mrp|money }}</p>
+  <dl class="info">
+    <dt>Composition</dt><dd>{{ med.composition }}</dd>
+    <dt>Used for</dt><dd>{{ med.uses or 'Ask your pharmacist.' }}</dd>
+    <dt>Possible side effects</dt><dd>{{ med.side_effects or 'Ask your pharmacist.' }}</dd>
+    <dt>Storage</dt><dd>{{ med.storage }}</dd>
+  </dl>
+  <p class="small">This is general information, not medical advice. Follow your doctor's instructions.</p>
+
+  {% if alternatives %}<div class="alternatives"><strong>{{ t('alternatives') }}:</strong>
+    {% for a in alternatives %}<a href="{{ url_for('customer.medicine', medicine_id=a.id) }}">{{ a.display_name }}</a> ({{ a.mrp|money }}){{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}
+
+  <div class="actions">
+    {% if status != 'out' %}
+    <form method="post" action="{{ url_for('customer.cart_add') }}" class="inline-form qty-actions">
+      {{ csrf_field() }}
+      <input type="hidden" name="medicine_id" value="{{ med.id }}">
+      <label class="visually-hidden" for="qty">Quantity</label>
+      <input id="qty" type="number" name="quantity" value="1" min="1" max="20" aria-label="Quantity">
+      <button class="btn" formaction="{{ url_for('customer.cart_add') }}">Add to cart</button>
+      {% if not med.needs_rx %}
+        <button class="btn secondary" formaction="{{ url_for('customer.reserve') }}">Reserve for pickup</button>
+      {% endif %}
+    </form>
+    {% else %}
+    <form method="post" action="{{ url_for('customer.notify') }}" class="inline-form">{{ csrf_field() }}
+      <input type="hidden" name="medicine_id" value="{{ med.id }}">
+      <input name="contact" placeholder="Phone or email" required aria-label="Phone or email">
+      <button class="btn">Notify me when back in stock</button></form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

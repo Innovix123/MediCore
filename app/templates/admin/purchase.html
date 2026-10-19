@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Purchasing{% endblock %}
+{% block content %}
+<h1>Purchasing</h1>
+<section class="card">
+  <h2>Reorder suggestions</h2>
+  {% if suggestions %}<ul class="plain">{% for s in suggestions %}<li>{{ s.medicine.display_name }}: {{ s.current }} left -> suggest ordering {{ s.suggested }}</li>{% endfor %}</ul>
+  <form method="post" action="{{ url_for('admin.purchase_generate') }}">{{ csrf_field() }}<button class="btn">Generate draft purchase orders</button></form>
+  {% else %}<p class="empty">Nothing is low right now.</p>{% endif %}
+</section>
+<section class="card"><h2>Purchase orders</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>PO</th><th>Supplier</th><th>Status</th><th>Total</th><th></th></tr></thead>
+  <tbody>{% for po in pos %}<tr><td>{{ po.po_number }}{% if po.auto_generated %} <span class="badge low">auto</span>{% endif %}</td>
+    <td>{{ po.supplier.name }}</td><td>{{ po.status }}</td><td>{{ po.total|money }}</td>
+    <td><a href="{{ url_for('admin.purchase_detail', po_id=po.id) }}">open</a></td></tr>
+  {% else %}<tr><td colspan="5" class="empty">No purchase orders yet.</td></tr>{% endfor %}</tbody>
+</table></div></section>
+{% endblock %}

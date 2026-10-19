@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Upload prescription{% endblock %}
+{% block content %}
+<h1>{{ t('nav_upload') }}</h1>
+{% if not current_user.is_authenticated or current_user.role_name != 'customer' %}
+<p><a class="btn" href="{{ url_for('auth.login', next=url_for('customer.prescriptions')) }}">Log in to upload a prescription</a></p>
+{% else %}
+<form method="post" enctype="multipart/form-data" class="card stack">{{ csrf_field() }}
+  <label>Prescription photo or PDF (max 5 MB) <input type="file" name="file" accept=".jpg,.jpeg,.png,.pdf" required></label>
+  <label>Doctor's name <input name="doctor_name"></label>
+  <button class="btn">Upload</button>
+</form>
+<h2>Your uploads</h2>
+{% if uploads %}<div class="table-wrap"><table>
+  <thead><tr><th>File</th><th>Doctor</th><th>Uploaded</th><th>Status</th></tr></thead>
+  <tbody>{% for u in uploads %}<tr>
+    <td><a href="{{ url_for('customer.prescription_file', upload_id=u.id) }}" target="_blank" rel="noopener">{{ u.original_name }}</a></td>
+    <td>{{ u.doctor_name }}</td><td>{{ u.uploaded_at.strftime('%d %b %Y') }}</td>
+    <td><span class="badge {{ 'in' if u.status=='approved' else 'out' if u.status=='rejected' else 'low' }}">{{ u.status }}</span>
+      {% if u.reject_reason %}<br><span class="small">{{ u.reject_reason }}</span>{% endif %}</td>
+  </tr>{% endfor %}</tbody></table></div>
+{% else %}<p class="empty">Nothing uploaded yet.</p>{% endif %}
+{% endif %}
+{% endblock %}

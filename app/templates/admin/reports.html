@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import table %}
+{% block title %}{{ titles[view] }}{% endblock %}
+{% block content %}
+<h1>Reports</h1>
+<nav class="tabs">{% for key, label in titles.items() %}<a href="{{ url_for('admin.report_view', view=key) }}" class="{{ 'active' if key == view }}">{{ label }}</a>{% endfor %}</nav>
+<h2>{{ titles[view] }}</h2>
+{{ table(headers, rows) }}
+{% endblock %}

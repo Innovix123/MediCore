@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ po.po_number }}{% endblock %}
+{% block content %}
+<h1>{{ po.po_number }} &middot; {{ po.supplier.name }} &middot; <span class="badge low">{{ po.status }}</span></h1>
+<form method="post" class="card stack">{{ csrf_field() }}
+<div class="table-wrap"><table>
+  <thead><tr><th>Medicine</th><th>Qty ordered</th><th>Unit cost</th>{% if po.status != 'received' %}<th>Receive: batch no.</th><th>Expiry</th><th>Qty received</th>{% endif %}</tr></thead>
+  <tbody>{% for it in po.items %}<tr><td>{{ it.medicine.display_name }}</td><td>{{ it.quantity }}</td><td>{{ it.unit_cost|money }}</td>
+    {% if po.status != 'received' %}
+    <td><input name="batch_{{ it.id }}" placeholder="Batch no."></td>
+    <td><input name="expiry_{{ it.id }}" type="date"></td>
+    <td><input name="qty_{{ it.id }}" type="number" min="0" value="{{ it.quantity }}"></td>{% endif %}
+  </tr>{% endfor %}</tbody>
+  <tfoot><tr><th colspan="2">Total</th><th>{{ po.total|money }}</th></tr></tfoot></table></div>
+{% if po.status != 'received' %}
+<label>Supplier invoice number <input name="supplier_invoice_no"></label>
+<div class="actions">
+  {% if po.status == 'draft' %}<button class="btn secondary" name="action" value="send">Mark sent to supplier</button>{% endif %}
+  <button class="btn" name="action" value="receive">Receive goods</button>
+  <button class="btn danger" name="action" value="cancel">Cancel</button>
+</div>
+{% endif %}
+</form>
+{% endblock %}

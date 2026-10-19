@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Cart{% endblock %}
+{% block content %}
+<h1>Your cart</h1>
+{% if not items %}<p class="empty">Your cart is empty. <a href="{{ url_for('customer.home') }}">Find a medicine</a></p>
+{% else %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Medicine</th><th>Qty</th><th>Price</th><th></th></tr></thead>
+  <tbody>{% for i in items %}<tr>
+    <td>{{ i.med.display_name }}{% if i.med.needs_rx %} <span class="badge rx">Rx</span>{% endif %}</td>
+    <td>{{ i.qty }}</td><td>{{ i.line|money }}</td>
+    <td><form method="post" action="{{ url_for('customer.cart_remove', medicine_id=i.med.id) }}">{{ csrf_field() }}<button class="linkbtn">Remove</button></form></td>
+  </tr>{% endfor %}</tbody>
+  <tfoot><tr><th colspan="2">Total</th><th colspan="2">{{ total|money }}</th></tr></tfoot>
+</table></div>
+
+{% if current_user.is_authenticated and current_user.role_name == 'customer' %}
+<form method="post" action="{{ url_for('customer.checkout') }}" class="card stack">{{ csrf_field() }}
+  <h2>Checkout</h2>
+  <label>How do you want it?
+    <select name="fulfilment"><option value="pickup">Pick up at the store</option><option value="delivery">Home delivery</option></select></label>
+  <label>Delivery address <input name="address" value="{{ current_user.customer.address }}"></label>
+  {% if needs_rx %}
+  <label>Prescription for the Rx items
+    <select name="upload_id" required><option value="">Choose an uploaded prescription</option>
+      {% for u in uploads %}<option value="{{ u.id }}">{{ u.original_name }} ({{ u.status }})</option>{% endfor %}</select></label>
+  <p class="small">No prescription yet? <a href="{{ url_for('customer.prescriptions') }}">Upload one</a> first.</p>
+  {% endif %}
+  <p class="small">You pay at pickup or on delivery.</p>
+  <button class="btn">Place order</button>
+</form>
+{% else %}<p><a class="btn" href="{{ url_for('auth.login', next=url_for('customer.cart')) }}">Log in to place your order</a></p>{% endif %}
+{% endif %}
+{% endblock %}

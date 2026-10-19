@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="kpis">
+  <div class="kpi"><span>Today's sales</span><strong>{{ k.today_total|money }}</strong></div>
+  <div class="kpi"><span>Invoices today</span><strong>{{ k.today_count }}</strong></div>
+  <div class="kpi warn"><span>Low stock</span><strong>{{ k.low_stock }}</strong></div>
+  <div class="kpi warn"><span>Near expiry</span><strong>{{ k.near_expiry }}</strong></div>
+  <div class="kpi danger"><span>Expired</span><strong>{{ k.expired }}</strong></div>
+  <div class="kpi"><span>Pending Rx</span><strong>{{ k.pending_rx }}</strong></div>
+  <div class="kpi"><span>Open orders</span><strong>{{ k.open_orders }}</strong></div>
+  <div class="kpi"><span>Open purchase orders</span><strong>{{ k.open_pos }}</strong></div>
+</div>
+
+<section class="card">
+  <h2>Sales trend (14 days)</h2>
+  <div class="bars">{% for day, amt in trend %}
+    <div class="bar-col" title="{{ day.strftime('%d %b') }}: {{ amt|money }}">
+      <div class="bar" style="height:{{ ((amt/peak)*100)|round(1) if peak else 0 }}%"></div>
+      <span class="bar-label">{{ day.strftime('%d') }}</span></div>
+  {% endfor %}</div>
+</section>
+
+<div class="grid2">
+  <section class="card"><h2>Top sellers (30 days)</h2>
+    <ol class="plain">{% for name, qty, rev in top %}<li>{{ name }} &middot; {{ qty }} units &middot; {{ rev|money }}</li>{% else %}<li class="empty">No sales yet.</li>{% endfor %}</ol></section>
+  <section class="card"><h2>Unmet demand</h2>
+    <ol class="plain">{% for q, n, r, o in unmet %}<li>"{{ q }}" searched {{ n }}x ({{ o }} out-of-stock hits)</li>{% else %}<li class="empty">Nothing to flag.</li>{% endfor %}</ol>
+    <a href="{{ url_for('admin.report_view', view='unmet') }}">See full report</a></section>
+</div>
+<p><a class="btn" href="{{ url_for('admin.report_view') }}">All reports</a> <a class="btn secondary" href="{{ url_for('admin.export_sales') }}">Export sales CSV</a></p>
+{% endblock %}

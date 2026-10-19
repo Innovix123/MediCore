@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<h1>Profile</h1>
+<div class="grid2">
+<form method="post" class="card stack">{{ csrf_field() }}<input type="hidden" name="form_type" value="details">
+  <h2>My details</h2>
+  <label>Name <input name="name" value="{{ me.name }}" required></label>
+  <label>Phone <input name="phone" value="{{ me.phone }}"></label>
+  <label>Address <input name="address" value="{{ me.address }}"></label>
+  <button class="btn">Save</button></form>
+
+<div class="card"><h2>Family members</h2>
+  <ul class="plain">{% for f in me.family %}<li>{{ f.name }} ({{ f.relation }})
+    <form method="post" action="{{ url_for('customer.profile_delete', kind='family', item_id=f.id) }}" class="inline">{{ csrf_field() }}<button class="linkbtn">remove</button></form></li>{% else %}<li class="empty">None added.</li>{% endfor %}</ul>
+  <form method="post" class="inline-form">{{ csrf_field() }}<input type="hidden" name="form_type" value="family">
+    <input name="name" placeholder="Name" required><input name="relation" placeholder="Relation"><button class="btn secondary">Add</button></form></div>
+
+<div class="card"><h2>Allergies</h2>
+  <p class="small">Pharmacists see these when dispensing.</p>
+  <ul class="plain">{% for a in me.allergies %}<li>{{ a.allergen }}
+    <form method="post" action="{{ url_for('customer.profile_delete', kind='allergy', item_id=a.id) }}" class="inline">{{ csrf_field() }}<button class="linkbtn">remove</button></form></li>{% else %}<li class="empty">None recorded.</li>{% endfor %}</ul>
+  <form method="post" class="inline-form">{{ csrf_field() }}<input type="hidden" name="form_type" value="allergy">
+    <input name="allergen" placeholder="e.g. Penicillin" required>
+    <select name="family_member_id"><option value="">Me</option>{% for f in me.family %}<option value="{{ f.id }}">{{ f.name }}</option>{% endfor %}</select>
+    <button class="btn secondary">Add</button></form></div>
+
+<div class="card"><h2>My regular medicines</h2>
+  <p class="small">We'll remind you before they run out.</p>
+  <ul class="plain">{% for pm in me.medications %}<li>{{ pm.medicine.display_name }} &middot; {{ pm.dosage }}{% if pm.last_refill_on %} &middot; last refill {{ pm.last_refill_on.strftime('%d %b') }}{% endif %}
+    <form method="post" action="{{ url_for('customer.profile_delete', kind='medication', item_id=pm.id) }}" class="inline">{{ csrf_field() }}<button class="linkbtn">remove</button></form></li>{% else %}<li class="empty">None added.</li>{% endfor %}</ul>
+  <form method="post" class="stack">{{ csrf_field() }}<input type="hidden" name="form_type" value="medication">
+    <select name="medicine_id" required><option value="">Choose medicine</option>{% for m in all_meds %}<option value="{{ m.id }}">{{ m.display_name }}</option>{% endfor %}</select>
+    <input name="dosage" placeholder="Dosage, e.g. 1 tablet daily">
+    <input name="days_supply" type="number" min="1" value="30" aria-label="Days the pack lasts">
+    <label>Last bought on <input name="last_refill_on" type="date"></label>
+    <button class="btn secondary">Add</button></form></div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import table %}
+{% block title %}Schedule H1/X register{% endblock %}
+{% block content %}
+<h1>Schedule H1 / X drug register</h1>
+<form class="inline-form">
+  <label>From <input type="date" name="start" value="{{ start }}"></label>
+  <label>To <input type="date" name="end" value="{{ end }}"></label>
+  <button class="btn">Filter</button></form>
+<p><a class="btn secondary" href="{{ url_for('admin.register_csv', start=start, end=end) }}">Download CSV</a></p>
+{{ table(headers, rows) }}
+{% endblock %}

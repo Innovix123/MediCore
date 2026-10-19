@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import badge %}
+{% block title %}Inventory{% endblock %}
+{% block content %}
+<h1>Inventory</h1>
+<p class="small">Showing stock for <strong>{{ current_branch.name if current_branch else 'your branch' }}</strong>.
+  Switch branches from the bar at the top of the page.</p>
+<form class="inline-form"><input name="q" value="{{ q }}" placeholder="Search brand or generic name"><button class="btn">Search</button></form>
+<p><a class="btn" href="{{ url_for('admin.medicine_form') }}">+ Add medicine</a></p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Medicine</th><th>Generic</th><th>Available</th><th>Status</th><th>Schedule</th><th>MRP</th><th></th></tr></thead>
+  <tbody>{% for r in rows %}<tr>
+    <td><a href="{{ url_for('admin.medicine_detail', medicine_id=r.m.id) }}">{{ r.m.display_name }}</a></td>
+    <td>{{ r.m.generic_name }}</td><td>{{ r.qty }}</td><td>{{ badge(r.status) }}</td>
+    <td>{{ r.m.schedule }}</td><td>{{ r.m.mrp|money }}</td>
+    <td><a href="{{ url_for('admin.medicine_form', medicine_id=r.m.id) }}">edit</a></td>
+  </tr>{% else %}<tr><td colspan="7" class="empty">No medicines found.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}
