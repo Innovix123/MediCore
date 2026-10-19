@@ -9,8 +9,8 @@ class Config:
     STORE_NAME = "MediCore Pharmacy"
     SECRET_KEY = os.getenv("SECRET_KEY") or "dev-only-change-me"
     _db_url = os.getenv("DATABASE_URL", "sqlite:///" + os.path.join(BASE_DIR, "medicore.db"))
-    if _db_url.startswith("postgres://"):
-        _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+    if _db_url.startswith("postgresql://"):
+        _db_url = _db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
