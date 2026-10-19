@@ -30,7 +30,7 @@ MediCore is a Flask-based web application designed to simplify pharmacy operatio
 
 ## Live Demo
 
-🔗 **Live Application:** 
+🔗 **Live Application:** https://medicore-1-4hd6.onrender.com
 
 ## Project Status
 
