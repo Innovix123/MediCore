@@ -7,12 +7,11 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     STORE_NAME = "MediCore Pharmacy"
-    SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me")
+    SECRET_KEY = os.getenv("SECRET_KEY") or "dev-only-change-me"
     _db_url = os.getenv("DATABASE_URL", "sqlite:///" + os.path.join(BASE_DIR, "medicore.db"))
     if _db_url.startswith("postgres://"):
         _db_url = _db_url.replace("postgres://", "postgresql://", 1)
     SQLALCHEMY_DATABASE_URI = _db_url
-    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
